@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Common;
 
 namespace Lib;
 
@@ -25,7 +24,7 @@ public sealed class NelderMeadMethod
 
 	// TODO strategy?
 	private static IEnumerable<Point> GeneratePoints(uint count, uint dimension) =>
-		Utilities.Generate(count, () => PointUtilities.Random(dimension));
+		Utilities.Generate(count, () => Utilities.RandomPoint(dimension));
 
 	public Point FindMinimum(RealMultivariableFunction function)
 	{

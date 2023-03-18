@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Common;
+namespace Lib;
 
 public static class Utilities
 {
@@ -14,4 +14,12 @@ public static class Utilities
 	}
 
 	public static T Identity<T>(T value) => value;
+
+	public static Point RandomPoint(uint dimension) =>
+		new(
+			Generate(
+				dimension,
+				() => System.Random.Shared.NextDouble() * 100
+			)
+		);
 }
