@@ -8,6 +8,14 @@ public static class Program
 	public static void Main()
 	{
 		var rosenbrock = Rosenbrock.Classic();
+		var himmelblau = new Himmelblau();
+
+		Test(rosenbrock);
+		Test(himmelblau);
+	}
+
+	private static void Test(RealMultivariableFunction function)
+	{
 		var classic = new Coefficients
 		{
 			Reflection = 1,
@@ -16,7 +24,7 @@ public static class Program
 		};
 
 		var method = new NelderMeadMethod(classic, NoMoreThanNIterations);
-		var min = method.FindMinimum(rosenbrock);
+		var min = method.FindMinimum(function);
 		Console.WriteLine(min);
 	}
 
