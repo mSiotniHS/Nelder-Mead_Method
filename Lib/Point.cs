@@ -25,11 +25,6 @@ public class Point : IEquatable<Point>
 		set => Coordinates[key] = value;
 	}
 
-	private static void DimensionAssert(Point first, Point second)
-	{
-		DimensionAssert(first.Dimension, second.Dimension);
-	}
-
 	private static void DimensionAssert(uint first, uint second)
 	{
 		if (first != second)
@@ -38,13 +33,11 @@ public class Point : IEquatable<Point>
 		}
 	}
 
-	public void DimensionAssert(uint dimension)
-	{
-		DimensionAssert(dimension, Dimension);
-	}
+	private static void DimensionAssert(Point first, Point second) =>
+		DimensionAssert(first.Dimension, second.Dimension);
 
-	public void DimensionAssert(Point other) =>
-		DimensionAssert(this, other);
+	public void DimensionAssert(uint dimension) =>
+		DimensionAssert(Dimension, dimension);
 
 	public static Point operator +(Point point) =>
 		point;
