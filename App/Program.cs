@@ -1,6 +1,5 @@
 ﻿using System;
 using Lib;
-using Lib.Functions;
 
 namespace App;
 

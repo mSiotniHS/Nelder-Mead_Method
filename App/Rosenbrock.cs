@@ -1,6 +1,7 @@
-﻿using static System.Math;
+﻿using Lib;
+using static System.Math;
 
-namespace Lib.Functions;
+namespace App;
 
 public sealed class Rosenbrock : RealMultivariableFunction
 {
