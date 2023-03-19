@@ -26,10 +26,20 @@ public sealed class NelderMeadMethod
 	private static IEnumerable<Point> GeneratePoints(uint count, uint dimension) =>
 		Utilities.Generate(count, () => Utilities.RandomPoint(dimension));
 
-	public Point FindMinimum(RealMultivariableFunction function)
+	public Point FindMinimum(RealMultivariableFunction function, Simplex? initialSimplex = null)
 	{
 		var dimension = function.Dimension;
-		var simplex = new Simplex(GeneratePoints(dimension + 1, dimension));
+		var simplex = initialSimplex switch
+		{
+			null => new Simplex(GeneratePoints(dimension + 1, dimension)),
+			{ } => initialSimplex
+		};
+
+		if (simplex.Size != dimension + 1)
+		{
+			throw new ArgumentException($"Initial simplex is of wrong size: got {simplex.Size}, require {dimension}",
+				nameof(initialSimplex));
+		}
 
 		_statistics.Save(simplex);
 
