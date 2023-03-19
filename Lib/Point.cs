@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Lib;
 
-public class Point : IEquatable<Point>
+public class Point : IEquatable<Point>, IEnumerable<double>
 {
 	public double[] Coordinates { get; }
 	public uint Dimension => (uint) Coordinates.Length;
@@ -50,7 +51,7 @@ public class Point : IEquatable<Point>
 		DimensionAssert(left, right);
 
 		return new Point(
-			left.Coordinates.Zip(right.Coordinates, (x, y) => x + y)
+			left.Zip(right, (x, y) => x + y)
 		);
 	}
 
@@ -72,9 +73,9 @@ public class Point : IEquatable<Point>
 	{
 		if (other == null) return false;
 
-		return Coordinates
+		return this
 			.Zip(
-				other.Coordinates,
+				other,
 				(first, second) => Math.Abs(first - second) < 0.001
 			)
 			.All(Utilities.Identity);
@@ -91,4 +92,9 @@ public class Point : IEquatable<Point>
 	}
 
 	public override string ToString() => $"({string.Join(", ", Coordinates)})";
+
+	public IEnumerator<double> GetEnumerator() =>
+		((IEnumerable<double>) Coordinates).GetEnumerator();
+
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

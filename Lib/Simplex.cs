@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Lib;
 
-public sealed class Simplex
+public sealed class Simplex : IEnumerable<Point>
 {
 	private readonly Point[] _simplex;
 	public uint Size => (uint) _simplex.Length;
@@ -53,4 +54,9 @@ public sealed class Simplex
 
 		return centroid / count;
 	}
+
+	public IEnumerator<Point> GetEnumerator() =>
+		((IEnumerable<Point>) _simplex).GetEnumerator();
+
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
