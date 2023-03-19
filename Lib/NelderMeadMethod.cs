@@ -22,10 +22,6 @@ public sealed class NelderMeadMethod
 		_shouldWork = shouldWork;
 	}
 
-	// TODO strategy?
-	private static IEnumerable<Point> GeneratePoints(uint count, uint dimension) =>
-		Utilities.Generate(count, () => Utilities.RandomPoint(dimension));
-
 	public Point FindMinimum(RealMultivariableFunction function, Simplex? initialSimplex = null)
 	{
 		var dimension = function.Dimension;
@@ -98,6 +94,9 @@ public sealed class NelderMeadMethod
 
 		return simplex.Map(point => Shrink(point, bestPoint));
 	}
+
+	private static IEnumerable<Point> GeneratePoints(uint count, uint dimension) =>
+		Utilities.Generate(count, () => Utilities.RandomPoint(dimension));
 
 	private static Point MapPoint(Point mapped, Point basis, double coef) =>
 		basis + coef * (basis - mapped);
