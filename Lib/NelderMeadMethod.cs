@@ -52,7 +52,7 @@ public sealed class NelderMeadMethod
 
 	private Simplex PerformIteration(Simplex simplex, RealMultivariableFunction function)
 	{
-		var (bestPoint, secondWorstPoint, worstPoint) = FindKeyPoints(
+		var (bestPoint, _, worstPoint) = FindKeyPoints(
 			simplex, function,
 			out var bestValue, out var secondWorstValue, out var worstValue
 		);
