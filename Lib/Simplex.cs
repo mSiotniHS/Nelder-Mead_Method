@@ -40,7 +40,7 @@ public sealed class Simplex
 
 	public Point Centroid(Point except)
 	{
-		var centroid = Point.Zero(_simplex[0].Dimension);
+		var centroid = Point.Zero(Size - 1);
 		var count = 0;
 
 		foreach (var point in _simplex)
