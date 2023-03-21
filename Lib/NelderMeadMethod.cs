@@ -43,7 +43,7 @@ public sealed class NelderMeadMethod
 
 		while (_shouldWork(_statistics))
 		{
-			Console.WriteLine("Current simplex");
+			Console.WriteLine("\n\nCurrent simplex");
 			for (var i = 0; i < simplex.Size; i++)
 			{
 				Console.WriteLine($"{i + 1}) {simplex[i]} ({function.Calculate(simplex[i])})");
@@ -60,20 +60,32 @@ public sealed class NelderMeadMethod
 
 	private Simplex PerformIteration(Simplex simplex, RealMultivariableFunction function)
 	{
-		var (bestPoint, _, worstPoint) = FindKeyPoints(
+		Console.WriteLine("/ Начинаем итерацию");
+
+		var (bestPoint, secondWorstPoint, worstPoint) = FindKeyPoints(
 			simplex, function,
 			out var bestValue, out var secondWorstValue, out var worstValue
 		);
 
+		Console.WriteLine("| Ключевые точки:");
+		Console.WriteLine($"| *) Лучшая: {bestPoint} [{bestValue}]");
+		Console.WriteLine($"| *) Second worst: {secondWorstPoint} [{secondWorstValue}]");
+		Console.WriteLine($"| *) Худшая: {worstPoint} [{worstValue}]");
+
 		var centroid = simplex.Centroid(except: worstPoint);
+		Console.WriteLine($"| Центр масс всех, кроме худшей: {centroid}");
 
 		var reflection = Reflect(worstPoint, centroid);
 		var reflectionValue = function.Calculate(reflection);
+		Console.WriteLine($"| Reflection: {reflection} [{reflectionValue}]");
 
 		if (reflectionValue < bestValue)
 		{
+			Console.WriteLine("| reflectionValue < bestValue!");
+
 			var expansion = Expand(reflection, centroid);
 			var expansionValue = function.Calculate(expansion);
+			Console.WriteLine($"\\ Expansion: {expansion} [{expansionValue}]");
 
 			return simplex.Replace(
 				worstPoint,
@@ -83,21 +95,26 @@ public sealed class NelderMeadMethod
 
 		if (reflectionValue < secondWorstValue) // between!
 		{
+			Console.WriteLine("\\ reflectionValue < secondWorstValue!");
 			return simplex.Replace(worstPoint, reflection);
 		}
 
 		var (betterPoint, betterValue) = reflectionValue < worstValue
 			? (reflection, reflectionValue)
 			: (worstPoint, worstValue);
+		Console.WriteLine($"| Лучшая из оставшихся: {betterPoint} [{betterValue}]");
 
 		var shrunk = Shrink(betterPoint, centroid);
 		var shrunkValue = function.Calculate(shrunk);
+		Console.WriteLine($"| Shrunk: {shrunk} [{shrunkValue}]");
 
 		if (shrunkValue < betterValue)
 		{
+			Console.WriteLine("\\ shrunkValue < betterValue!");
 			return simplex.Replace(worstPoint, shrunk);
 		}
 
+		Console.WriteLine("\\ Никакая из вычисленных не лучше --- global shrink");
 		return simplex.Map(point => Shrink(point, bestPoint));
 	}
 
