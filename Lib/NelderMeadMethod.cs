@@ -86,10 +86,14 @@ public sealed class NelderMeadMethod
 			return simplex.Replace(worstPoint, reflection);
 		}
 
-		var shrunk = Shrink(reflectionValue < worstValue ? reflection : worstPoint, centroid);
+		var (betterPoint, betterValue) = reflectionValue < worstValue
+			? (reflection, reflectionValue)
+			: (worstPoint, worstValue);
+
+		var shrunk = Shrink(betterPoint, centroid);
 		var shrunkValue = function.Calculate(shrunk);
 
-		if (shrunkValue < reflectionValue)
+		if (shrunkValue < betterValue)
 		{
 			return simplex.Replace(worstPoint, shrunk);
 		}
