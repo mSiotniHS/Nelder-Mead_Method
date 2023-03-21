@@ -7,9 +7,9 @@ public static class SimplexTests
 		[Fact]
 		public void ReplaceShouldGenerateCorrectSimplex()
 		{
+			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4)});
 			var added = new Point(0, 0);
 
-			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4)});
 			var modifiedSimplex = simplex.Replace(new(1, 2), added);
 
 			Assert.Contains(added, modifiedSimplex);
@@ -19,9 +19,9 @@ public static class SimplexTests
 		[Fact]
 		public void ReplaceShouldNotModifyInitialSimplex()
 		{
+			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4)});
 			var added = new Point(0, 0);
 
-			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4)});
 			var _ = simplex.Replace(new(1, 2), added);
 
 			Assert.Contains(new(1, 2), simplex);
