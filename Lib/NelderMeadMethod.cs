@@ -5,6 +5,8 @@ namespace Lib;
 
 public sealed class NelderMeadMethod
 {
+	public delegate bool EvaluationStrategy(Statistics<Simplex> statistics);
+
 	private readonly double _reflectionCoef;
 	private readonly double _shrinkCoef;
 	private readonly double _expansionCoef;
