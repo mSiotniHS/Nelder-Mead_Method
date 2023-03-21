@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Lib;
 
 namespace App;
@@ -23,8 +24,15 @@ public static class Program
 			Shrink = 0.5
 		};
 
+		var initialSimplex = new Simplex(new List<Point>
+		{
+			new(1, 2),
+			new(3, 4),
+			new(5, 6)
+		});
+
 		var method = new NelderMeadMethod(classic, NoMoreThanNIterations);
-		var min = method.FindMinimum(function);
+		var min = method.FindMinimum(function, initialSimplex);
 		Console.WriteLine(min);
 	}
 
