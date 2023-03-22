@@ -81,7 +81,7 @@ public sealed class NelderMeadMethod
 
 		if (reflectionValue < bestValue)
 		{
-			Console.WriteLine("| reflectionValue < bestValue!");
+			Console.WriteLine("| reflectionValue лучше bestValue!");
 
 			var expansion = Expand(reflection, centroid);
 			var expansionValue = function.Calculate(expansion);
@@ -93,16 +93,20 @@ public sealed class NelderMeadMethod
 			);
 		}
 
+		Console.WriteLine("| reflectionValue хуже bestValue");
+
 		if (reflectionValue < secondWorstValue) // between!
 		{
-			Console.WriteLine("\\ reflectionValue < secondWorstValue!");
+			Console.WriteLine("\\ reflectionValue лучше secondWorstValue!");
 			return simplex.Replace(worstPoint, reflection);
 		}
+
+		Console.WriteLine("| reflectionValue хуже secondWorstValue");
 
 		var (betterPoint, betterValue) = reflectionValue < worstValue
 			? (reflection, reflectionValue)
 			: (worstPoint, worstValue);
-		Console.WriteLine($"| Лучшая из оставшихся: {betterPoint} [{betterValue}]");
+		Console.WriteLine($"| Лучшая между reflection и worst: {betterPoint} [{betterValue}]");
 
 		var shrunk = Shrink(betterPoint, centroid);
 		var shrunkValue = function.Calculate(shrunk);
@@ -110,7 +114,7 @@ public sealed class NelderMeadMethod
 
 		if (shrunkValue < betterValue)
 		{
-			Console.WriteLine("\\ shrunkValue < betterValue!");
+			Console.WriteLine("\\ shrunkValue лучше betterValue!");
 			return simplex.Replace(worstPoint, shrunk);
 		}
 
