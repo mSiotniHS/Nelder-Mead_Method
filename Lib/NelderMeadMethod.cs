@@ -139,11 +139,9 @@ public sealed class NelderMeadMethod
 		out double bestValue, out double secondWorstValue, out double worstValue)
 	{
 		var bestPoint = simplex[0];
-		var secondWorstPoint = simplex[0];
 		var worstPoint = simplex[0];
 
 		bestValue = function.Calculate(bestPoint);
-		secondWorstValue = function.Calculate(secondWorstPoint);
 		worstValue = function.Calculate(worstPoint);
 
 		for (var i = 1; i < simplex.Size; i++)
@@ -159,11 +157,23 @@ public sealed class NelderMeadMethod
 
 			if (value > worstValue)
 			{
-				secondWorstPoint = worstPoint;
-				secondWorstValue = worstValue;
-
 				worstPoint = point;
 				worstValue = value;
+			}
+		}
+
+		var secondWorstPoint = bestPoint;
+		secondWorstValue = function.Calculate(secondWorstPoint);
+
+		for (var i = 0; i < simplex.Size; i++)
+		{
+			var point = simplex[i];
+			var value = function.Calculate(point);
+
+			if (secondWorstValue < value && value < worstValue)
+			{
+				secondWorstPoint = point;
+				secondWorstValue = value;
 			}
 		}
 
