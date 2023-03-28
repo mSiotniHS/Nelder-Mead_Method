@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Lib;
+using Lib.Helpers;
 
 namespace App;
 
@@ -32,7 +33,7 @@ public static class Program
 		});
 
 		var method = new NelderMeadMethod(classic, NoMoreThanNIterations);
-		var min = method.FindMinimum(function, initialSimplex);
+		var min = method.FindMinimum(function, initialSimplex, new ConsoleLogger());
 		Console.WriteLine(min);
 	}
 
