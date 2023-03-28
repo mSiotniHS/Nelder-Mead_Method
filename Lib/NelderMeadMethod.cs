@@ -1,4 +1,5 @@
 ﻿using System;
+using Lib.Helpers;
 
 namespace Lib;
 
@@ -17,7 +18,7 @@ public sealed class NelderMeadMethod
 		_shouldWork = shouldWork;
 	}
 
-	public Point FindMinimum(RealMultivariableFunction function, Simplex initialSimplex)
+	public Point FindMinimum(RealMultivariableFunction function, Simplex initialSimplex, ILogger logger)
 	{
 		var dimension = function.Dimension;
 		var simplex = initialSimplex;
@@ -32,24 +33,24 @@ public sealed class NelderMeadMethod
 
 		while (_shouldWork(_statistics))
 		{
-			Console.WriteLine("\n\nCurrent simplex");
+			logger.Log("\n\nCurrent simplex");
 			for (var i = 0; i < simplex.Size; i++)
 			{
-				Console.WriteLine($"{i + 1}) {simplex[i]} ({function.Calculate(simplex[i])})");
+				logger.Log($"{i + 1}) {simplex[i]} ({function.Calculate(simplex[i])})");
 			}
 
-			Console.WriteLine();
+			logger.Log("");
 
-			simplex = PerformIteration(simplex, function);
+			simplex = PerformIteration(simplex, function, logger);
 			_statistics.Save(simplex);
 		}
 
 		return FindMin(simplex, function).Item1;
 	}
 
-	private Simplex PerformIteration(Simplex simplex, RealMultivariableFunction function)
+	private Simplex PerformIteration(Simplex simplex, RealMultivariableFunction function, ILogger logger)
 	{
-		Console.WriteLine("/ Начинаем итерацию");
+		logger.Log("/ Начинаем итерацию");
 
 		var keyPoints = FindKeyPoints(simplex, function);
 
@@ -62,25 +63,25 @@ public sealed class NelderMeadMethod
 		var worstPoint = keyPoints.WorstPoint;
 		var worstValue = keyPoints.WorstValue;
 
-		Console.WriteLine("| Ключевые точки:");
-		Console.WriteLine($"| *) Лучшая: {bestPoint} [{bestValue}]");
-		Console.WriteLine($"| *) Second worst: {secondWorstPoint} [{secondWorstValue}]");
-		Console.WriteLine($"| *) Худшая: {worstPoint} [{worstValue}]");
+		logger.Log("| Ключевые точки:");
+		logger.Log($"| *) Лучшая: {bestPoint} [{bestValue}]");
+		logger.Log($"| *) Second worst: {secondWorstPoint} [{secondWorstValue}]");
+		logger.Log($"| *) Худшая: {worstPoint} [{worstValue}]");
 
 		var centroid = simplex.Centroid(except: worstPoint);
-		Console.WriteLine($"| Центр масс всех, кроме худшей: {centroid}");
+		logger.Log($"| Центр масс всех, кроме худшей: {centroid}");
 
 		var reflection = Reflect(worstPoint, centroid);
 		var reflectionValue = function.Calculate(reflection);
-		Console.WriteLine($"| Reflection: {reflection} [{reflectionValue}]");
+		logger.Log($"| Reflection: {reflection} [{reflectionValue}]");
 
 		if (reflectionValue < bestValue)
 		{
-			Console.WriteLine("| reflectionValue лучше bestValue!");
+			logger.Log("| reflectionValue лучше bestValue!");
 
 			var expansion = Expand(reflection, centroid);
 			var expansionValue = function.Calculate(expansion);
-			Console.WriteLine($"\\ Expansion: {expansion} [{expansionValue}]");
+			logger.Log($"\\ Expansion: {expansion} [{expansionValue}]");
 
 			return simplex.Replace(
 				worstPoint,
@@ -88,32 +89,32 @@ public sealed class NelderMeadMethod
 			);
 		}
 
-		Console.WriteLine("| reflectionValue хуже bestValue");
+		logger.Log("| reflectionValue хуже bestValue");
 
 		if (reflectionValue < secondWorstValue) // between!
 		{
-			Console.WriteLine("\\ reflectionValue лучше secondWorstValue!");
+			logger.Log("\\ reflectionValue лучше secondWorstValue!");
 			return simplex.Replace(worstPoint, reflection);
 		}
 
-		Console.WriteLine("| reflectionValue хуже secondWorstValue");
+		logger.Log("| reflectionValue хуже secondWorstValue");
 
 		var (betterPoint, betterValue) = reflectionValue < worstValue
 			? (reflection, reflectionValue)
 			: (worstPoint, worstValue);
-		Console.WriteLine($"| Лучшая между reflection и worst: {betterPoint} [{betterValue}]");
+		logger.Log($"| Лучшая между reflection и worst: {betterPoint} [{betterValue}]");
 
 		var shrunk = Shrink(betterPoint, centroid);
 		var shrunkValue = function.Calculate(shrunk);
-		Console.WriteLine($"| Shrunk: {shrunk} [{shrunkValue}]");
+		logger.Log($"| Shrunk: {shrunk} [{shrunkValue}]");
 
 		if (shrunkValue < betterValue)
 		{
-			Console.WriteLine("\\ shrunkValue лучше betterValue!");
+			logger.Log("\\ shrunkValue лучше betterValue!");
 			return simplex.Replace(worstPoint, shrunk);
 		}
 
-		Console.WriteLine("\\ Никакая из вычисленных не лучше --- global shrink");
+		logger.Log("\\ Никакая из вычисленных не лучше --- global shrink");
 		return simplex.Map(point => Shrink(point, bestPoint));
 	}
 
