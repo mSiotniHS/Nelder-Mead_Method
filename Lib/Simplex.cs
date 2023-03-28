@@ -50,7 +50,7 @@ public sealed class Simplex : IEnumerable<Point>
 	public Simplex Map(Func<Point, Point> map)
 		=> new(_simplex.Select(map));
 
-	public Point Centroid(Point except)
+	public Point Centroid(Point? except = null)
 	{
 		var centroid = Point.Zero(Size - 1);
 		var count = 0;
