@@ -25,15 +25,10 @@ public static class Program
 			Shrink = 0.5
 		};
 
-		var initialSimplex = new Simplex(new List<Point>
-		{
-			new(1, 2),
-			new(3, 4),
-			new(5, 6)
-		});
+		var initialSimplex = new Simplex(GenerateRandomPoints(3, 2));
 
 		var method = new NelderMeadMethod(classic, NoMoreThanNIterations);
-		var min = method.FindMinimum(function, initialSimplex, new ConsoleLogger());
+		var min = method.FindMinimum(function, initialSimplex, new ConsoleLogger(), out _);
 		Console.WriteLine(min);
 	}
 
