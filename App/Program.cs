@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using Lib;
 using Lib.Helpers;
 
@@ -13,7 +16,7 @@ public static class Program
 		var himmelblau = new Himmelblau();
 
 		Test(rosenbrock);
-		Test(himmelblau);
+		// Test(himmelblau);
 	}
 
 	private static void Test(RealMultivariableFunction function)
@@ -27,14 +30,53 @@ public static class Program
 
 		var initialSimplex = new Simplex(GenerateRandomPoints(3, 2));
 
-		var method = new NelderMeadMethod(classic, NoMoreThanNIterations);
-		var min = method.FindMinimum(function, initialSimplex, new ConsoleLogger(), out _);
-		Console.WriteLine(min);
-	}
+		var iterationCount = EvaluationStrategyCollection.NoMoreThanNIterations(60);
+		var lastVariance = EvaluationStrategyCollection.LastVarianceIsLessThan(0.0001);
+		var lastVariances = EvaluationStrategyCollection.LastNVariancesAreLessThan(5, 0.0001);
 
-	private static bool NoMoreThanNIterations(Statistics<Simplex> statistics)
-		=> statistics.IterationCount < 60;
+		var consoleLogger = new ConsoleLogger();
+		var fileLogger = new FileLogger(new StreamWriter(@"C:\Users\MrAto\Desktop\log.txt", false, Encoding.Unicode));
+		var emptyLogger = new EmptyLogger();
+
+		var method = new NelderMeadMethod(classic, lastVariance);
+		var min = method.FindMinimum(function, initialSimplex, emptyLogger, out var statistics);
+
+		Console.WriteLine(min);
+		Console.WriteLine(statistics.IterationCount);
+	}
 
 	private static IEnumerable<Point> GenerateRandomPoints(uint count, uint dimension) =>
 		Utilities.Generate(count, () => Utilities.RandomPoint(dimension));
+}
+
+public static class EvaluationStrategyCollection
+{
+	public static NelderMeadMethod.EvaluationStrategy NoMoreThanNIterations(uint iterationCount)
+		=> statistics => statistics.IterationCount < iterationCount;
+
+	public static NelderMeadMethod.EvaluationStrategy LastVarianceIsLessThan(double epsilon)
+		=> LastNVariancesAreLessThan(1, epsilon);
+
+	public static NelderMeadMethod.EvaluationStrategy LastNVariancesAreLessThan(int count, double epsilon)
+		=> statistics =>
+		{
+			if (statistics.IterationCount == 0) return true;
+
+			var lastSimplexes = statistics.Trace.Skip(Math.Max(0, statistics.Trace.Count - count));
+			var varianceSum = lastSimplexes.Select(Variance).Sum();
+
+			return varianceSum >= epsilon;
+		};
+
+	private static double NormSquared(Point point) =>
+		point.Sum(coordinate => coordinate * coordinate);
+
+	private static double Variance(Simplex simplex)
+	{
+		var centroid = simplex.Centroid();
+
+		return simplex
+			.Select(point => NormSquared(point - centroid))
+			.Sum() / simplex.Size;
+	}
 }
