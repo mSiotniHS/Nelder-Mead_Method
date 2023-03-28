@@ -6,19 +6,13 @@ public sealed class NelderMeadMethod
 {
 	public delegate bool EvaluationStrategy(Statistics<Simplex> statistics);
 
-	private readonly double _reflectionCoef;
-	private readonly double _shrinkCoef;
-	private readonly double _expansionCoef;
-
+	private readonly Coefficients _coefficients;
 	private readonly Statistics<Simplex> _statistics;
 	private readonly EvaluationStrategy _shouldWork;
 
 	public NelderMeadMethod(Coefficients coefficients, EvaluationStrategy shouldWork)
 	{
-		_reflectionCoef = coefficients.Reflection;
-		_shrinkCoef = coefficients.Shrink;
-		_expansionCoef = coefficients.Expansion;
-
+		_coefficients = coefficients;
 		_statistics = Statistics<Simplex>.Classic();
 		_shouldWork = shouldWork;
 	}
@@ -127,13 +121,13 @@ public sealed class NelderMeadMethod
 		basis + coef * (basis - mapped);
 
 	private Point Reflect(Point reflected, Point basis) =>
-		MapPoint(reflected, basis, _reflectionCoef);
+		MapPoint(reflected, basis, _coefficients.Reflection);
 
 	private Point Expand(Point expanded, Point basis) =>
-		MapPoint(expanded, basis, -_expansionCoef);
+		MapPoint(expanded, basis, -_coefficients.Expansion);
 
 	private Point Shrink(Point shrunk, Point basis) =>
-		MapPoint(shrunk, basis, -_shrinkCoef);
+		MapPoint(shrunk, basis, -_coefficients.Shrink);
 
 	private delegate bool SavingCondition<in T>(T newValue, T currentValue);
 
