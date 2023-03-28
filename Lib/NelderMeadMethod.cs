@@ -8,20 +8,21 @@ public sealed class NelderMeadMethod
 	public delegate bool EvaluationStrategy(Statistics<Simplex> statistics);
 
 	private readonly Coefficients _coefficients;
-	private readonly Statistics<Simplex> _statistics;
 	private readonly EvaluationStrategy _shouldWork;
 
 	public NelderMeadMethod(Coefficients coefficients, EvaluationStrategy shouldWork)
 	{
 		_coefficients = coefficients;
-		_statistics = Statistics<Simplex>.Classic();
 		_shouldWork = shouldWork;
 	}
 
-	public Point FindMinimum(RealMultivariableFunction function, Simplex initialSimplex, ILogger logger)
+	public Point FindMinimum(
+		RealMultivariableFunction function, Simplex initialSimplex, ILogger logger, out Statistics<Simplex> statistics
+	)
 	{
 		var dimension = function.Dimension;
 		var simplex = initialSimplex;
+		statistics = new Statistics<Simplex>();
 
 		if (simplex.Size != dimension + 1)
 		{
@@ -29,9 +30,9 @@ public sealed class NelderMeadMethod
 				nameof(initialSimplex));
 		}
 
-		_statistics.Save(simplex);
+		statistics.Save(simplex);
 
-		while (_shouldWork(_statistics))
+		while (_shouldWork(statistics))
 		{
 			logger.Log("\n\nCurrent simplex");
 			for (var i = 0; i < simplex.Size; i++)
@@ -42,7 +43,7 @@ public sealed class NelderMeadMethod
 			logger.Log("");
 
 			simplex = PerformIteration(simplex, function, logger);
-			_statistics.Save(simplex);
+			statistics.Save(simplex);
 		}
 
 		return FindMin(simplex, function).Item1;
