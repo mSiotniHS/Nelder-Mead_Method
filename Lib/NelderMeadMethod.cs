@@ -50,17 +50,23 @@ public sealed class NelderMeadMethod
 			_statistics.Save(simplex);
 		}
 
-		return FindMin(simplex, function);
+		return FindMin(simplex, function).Item1;
 	}
 
 	private Simplex PerformIteration(Simplex simplex, RealMultivariableFunction function)
 	{
 		Console.WriteLine("/ Начинаем итерацию");
 
-		var (bestPoint, secondWorstPoint, worstPoint) = FindKeyPoints(
-			simplex, function,
-			out var bestValue, out var secondWorstValue, out var worstValue
-		);
+		var keyPoints = FindKeyPoints(simplex, function);
+
+		var bestPoint = keyPoints.BestPoint;
+		var bestValue = keyPoints.BestValue;
+
+		var secondWorstPoint = keyPoints.SecondWorstPoint;
+		var secondWorstValue = keyPoints.SecondWorstValue;
+
+		var worstPoint = keyPoints.WorstPoint;
+		var worstValue = keyPoints.WorstValue;
 
 		Console.WriteLine("| Ключевые точки:");
 		Console.WriteLine($"| *) Лучшая: {bestPoint} [{bestValue}]");
@@ -129,56 +135,79 @@ public sealed class NelderMeadMethod
 	private Point Shrink(Point shrunk, Point basis) =>
 		MapPoint(shrunk, basis, -_shrinkCoef);
 
-	// best, secondWorst, worst
-	private static (Point, Point, Point) FindKeyPoints(
-		Simplex simplex, RealMultivariableFunction function,
-		out double bestValue, out double secondWorstValue, out double worstValue)
+	private delegate bool SavingCondition<in T>(T newValue, T currentValue);
+
+	private static (Point, double) FindPoint(
+		Simplex simplex,
+		RealMultivariableFunction function,
+		SavingCondition<double> shouldSaveNewValue,
+		Point initialValue
+	)
 	{
-		var bestPoint = simplex[0];
-		var worstPoint = simplex[0];
-
-		bestValue = function.Calculate(bestPoint);
-		worstValue = function.Calculate(worstPoint);
-
-		for (var i = 1; i < simplex.Size; i++)
-		{
-			var point = simplex[i];
-			var value = function.Calculate(point);
-
-			if (value < bestValue)
-			{
-				bestPoint = point;
-				bestValue = value;
-			}
-
-			if (value > worstValue)
-			{
-				worstPoint = point;
-				worstValue = value;
-			}
-		}
-
-		var secondWorstPoint = bestPoint;
-		secondWorstValue = function.Calculate(secondWorstPoint);
+		var currentPoint = initialValue;
+		var currentValue = function.Calculate(currentPoint);
 
 		for (var i = 0; i < simplex.Size; i++)
 		{
 			var point = simplex[i];
 			var value = function.Calculate(point);
 
-			if (secondWorstValue < value && value < worstValue)
+			if (shouldSaveNewValue(value, currentValue))
 			{
-				secondWorstPoint = point;
-				secondWorstValue = value;
+				currentPoint = point;
+				currentValue = value;
 			}
 		}
 
-		return (bestPoint, secondWorstPoint, worstPoint);
+		return (currentPoint, currentValue);
 	}
 
-	private static Point FindMin(Simplex simplex, RealMultivariableFunction function)
+	private static (Point, double) FindPoint(
+		Simplex simplex,
+		RealMultivariableFunction function,
+		SavingCondition<double> shouldSaveNewValue
+	)
+		=> FindPoint(simplex, function, shouldSaveNewValue, simplex[0]);
+
+	private static (Point, double) FindMin(Simplex simplex, RealMultivariableFunction function)
+		=> FindPoint(simplex, function, (newValue, currentValue) => newValue < currentValue);
+
+	private static (Point, double) FindMax(Simplex simplex, RealMultivariableFunction function)
+		=> FindPoint(simplex, function, (newValue, currentValue) => newValue > currentValue);
+
+	// best, secondWorst, worst
+	private static KeyPoints FindKeyPoints(Simplex simplex, RealMultivariableFunction function)
 	{
-		var (minPoint, _, _) = FindKeyPoints(simplex, function, out _, out _, out _);
-		return minPoint;
+		var (bestPoint, bestValue) = FindMin(simplex, function);
+		var (worstPoint, worstValue) = FindMax(simplex, function);
+
+		var (secondWorstPoint, secondWorstValue) = FindPoint(
+			simplex,
+			function,
+			(newValue, currentValue) => currentValue < newValue && newValue < worstValue,
+			bestPoint
+		);
+
+		return new KeyPoints
+		{
+			BestPoint = bestPoint,
+			BestValue = bestValue,
+			SecondWorstPoint = secondWorstPoint,
+			SecondWorstValue = secondWorstValue,
+			WorstPoint = worstPoint,
+			WorstValue = worstValue
+		};
+	}
+
+	private readonly struct KeyPoints
+	{
+		public Point BestPoint { get; init; }
+		public double BestValue { get; init; }
+
+		public Point SecondWorstPoint { get; init; }
+		public double SecondWorstValue { get; init; }
+
+		public Point WorstPoint { get; init; }
+		public double WorstValue { get; init; }
 	}
 }
