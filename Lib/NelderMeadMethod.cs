@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Lib;
 
@@ -24,14 +23,10 @@ public sealed class NelderMeadMethod
 		_shouldWork = shouldWork;
 	}
 
-	public Point FindMinimum(RealMultivariableFunction function, Simplex? initialSimplex = null)
+	public Point FindMinimum(RealMultivariableFunction function, Simplex initialSimplex)
 	{
 		var dimension = function.Dimension;
-		var simplex = initialSimplex switch
-		{
-			null => new Simplex(GeneratePoints(dimension + 1, dimension)),
-			{ } => initialSimplex
-		};
+		var simplex = initialSimplex;
 
 		if (simplex.Size != dimension + 1)
 		{
@@ -121,9 +116,6 @@ public sealed class NelderMeadMethod
 		Console.WriteLine("\\ Никакая из вычисленных не лучше --- global shrink");
 		return simplex.Map(point => Shrink(point, bestPoint));
 	}
-
-	private static IEnumerable<Point> GeneratePoints(uint count, uint dimension) =>
-		Utilities.Generate(count, () => Utilities.RandomPoint(dimension));
 
 	private static Point MapPoint(Point mapped, Point basis, double coef) =>
 		basis + coef * (basis - mapped);

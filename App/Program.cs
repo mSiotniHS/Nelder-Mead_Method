@@ -38,4 +38,7 @@ public static class Program
 
 	private static bool NoMoreThanNIterations(Statistics<Simplex> statistics)
 		=> statistics.IterationCount < 60;
+
+	private static IEnumerable<Point> GenerateRandomPoints(uint count, uint dimension) =>
+		Utilities.Generate(count, () => Utilities.RandomPoint(dimension));
 }
