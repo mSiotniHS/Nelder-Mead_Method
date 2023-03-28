@@ -12,7 +12,18 @@ public sealed class Simplex : IEnumerable<Point>
 
 	public Simplex(IEnumerable<Point> simplex)
 	{
-		_simplex = simplex.ToArray();
+		var uncheckedSimplex = simplex.ToArray();
+		var pointCount = uncheckedSimplex.Length;
+
+		if (uncheckedSimplex.Any(point => point.Dimension != pointCount - 1))
+		{
+			throw new ArgumentException(
+				"Simplex size and its point dimensions are in disharmony",
+				nameof(simplex)
+			);
+		}
+
+		_simplex = uncheckedSimplex;
 	}
 
 	public Point this[Index idx]
