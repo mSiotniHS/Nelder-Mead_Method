@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Lib;
+namespace Lib.Math;
 
 public sealed class Simplex : IEnumerable<Point>
 {

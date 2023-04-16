@@ -1,4 +1,4 @@
-﻿using Lib;
+﻿using Lib.Math;
 using static System.Math;
 
 namespace App;

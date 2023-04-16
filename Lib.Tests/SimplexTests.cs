@@ -1,4 +1,6 @@
-﻿namespace Lib.Tests;
+﻿using Lib.Math;
+
+namespace Lib.Tests;
 
 public static class SimplexTests
 {

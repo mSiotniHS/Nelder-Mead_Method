@@ -1,4 +1,4 @@
-﻿namespace Lib;
+﻿namespace Lib.Math;
 
 public abstract class RealMultivariableFunction
 {

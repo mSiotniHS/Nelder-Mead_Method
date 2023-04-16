@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Lib;
+namespace Lib.Math;
 
 public class Point : IEquatable<Point>, IEnumerable<double>
 {
@@ -76,7 +76,7 @@ public class Point : IEquatable<Point>, IEnumerable<double>
 		return this
 			.Zip(
 				other,
-				(first, second) => Math.Abs(first - second) < 0.001
+				(first, second) => System.Math.Abs(first - second) < 0.001
 			)
 			.All(Utilities.Identity);
 	}
