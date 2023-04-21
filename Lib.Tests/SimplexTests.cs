@@ -4,10 +4,10 @@ namespace Lib.Tests;
 
 public static class SimplexTests
 {
-	public sealed class ReplaceMethod
+	public sealed class Replace
 	{
 		[Fact]
-		public void ReplaceShouldGenerateCorrectSimplex()
+		public void GeneratesCorrectSimplex()
 		{
 			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4), new(5, 6)});
 			var added = new Point(0, 0);
@@ -19,7 +19,7 @@ public static class SimplexTests
 		}
 
 		[Fact]
-		public void ReplaceShouldNotModifyInitialSimplex()
+		public void DoesNotModifyInitialSimplex()
 		{
 			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4), new(5, 6)});
 			var added = new Point(0, 0);
@@ -31,7 +31,7 @@ public static class SimplexTests
 		}
 
 		[Fact]
-		public void ReplacingNonExistentPointInSimplexShouldThrow()
+		public void ThrowsIfSimplexDoesNotHaveExcludedPoint()
 		{
 			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4), new(5, 6)});
 			var added = new Point(0, 0);
@@ -41,17 +41,17 @@ public static class SimplexTests
 		}
 	}
 
-	public sealed class CentroidMethod
+	public sealed class Centroid
 	{
 		[Theory]
-		[MemberData(nameof(CentroidShouldBeCalculatedCorrectlyData))]
-		public void CentroidShouldBeCalculatedCorrectly(Simplex simplex, Point? ignore, Point expected)
+		[MemberData(nameof(CalculatesExpectedValueData))]
+		public void CalculatesExpectedValue(Simplex simplex, Point? ignore, Point expected)
 		{
 			var actual = simplex.Centroid(ignore);
 			Assert.Equal(expected, actual);
 		}
 
-		public static IEnumerable<object?[]> CentroidShouldBeCalculatedCorrectlyData()
+		public static IEnumerable<object?[]> CalculatesExpectedValueData()
 		{
 			yield return new object?[]
 			{
