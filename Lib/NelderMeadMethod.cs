@@ -191,7 +191,6 @@ public sealed class NelderMeadMethod
 	private static (Point, double) FindMax(Simplex simplex, RealMultivariableFunction function)
 		=> FindPoint(simplex, function, (newValue, currentValue) => newValue > currentValue);
 
-	// best, secondWorst, worst
 	private static KeyPoints FindKeyPoints(Simplex simplex, RealMultivariableFunction function)
 	{
 		var (bestPoint, bestValue) = FindMin(simplex, function);
