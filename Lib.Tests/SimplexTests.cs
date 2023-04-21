@@ -9,7 +9,7 @@ public static class SimplexTests
 		[Fact]
 		public void ReplaceShouldGenerateCorrectSimplex()
 		{
-			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4)});
+			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4), new(5, 6)});
 			var added = new Point(0, 0);
 
 			var modifiedSimplex = simplex.Replace(new(1, 2), added);
@@ -21,7 +21,7 @@ public static class SimplexTests
 		[Fact]
 		public void ReplaceShouldNotModifyInitialSimplex()
 		{
-			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4)});
+			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4), new(5, 6)});
 			var added = new Point(0, 0);
 
 			var _ = simplex.Replace(new(1, 2), added);
@@ -33,7 +33,7 @@ public static class SimplexTests
 		[Fact]
 		public void ReplacingNonExistentPointInSimplexShouldThrow()
 		{
-			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4)});
+			var simplex = new Simplex(new List<Point> {new(1, 2), new(3, 4), new(5, 6)});
 			var added = new Point(0, 0);
 			var nonExistent = new Point(10, 10);
 
