@@ -18,7 +18,11 @@ public sealed class NelderMeadMethod
 	}
 
 	public Point FindMinimum(
-		RealMultivariableFunction function, Simplex initialSimplex, ILogger logger, out Statistics<Simplex> statistics
+		RealMultivariableFunction function,
+		RealCoordinateSpace space,
+		Simplex initialSimplex,
+		ILogger logger,
+		out Statistics<Simplex> statistics
 	)
 	{
 		var dimension = function.Dimension;
@@ -43,14 +47,18 @@ public sealed class NelderMeadMethod
 
 			logger.Log("");
 
-			simplex = PerformIteration(simplex, function, logger);
+			simplex = PerformIteration(simplex, function, space, logger);
 			statistics.Save(simplex);
 		}
 
 		return FindMin(simplex, function).Item1;
 	}
 
-	private Simplex PerformIteration(Simplex simplex, RealMultivariableFunction function, ILogger logger)
+	private Simplex PerformIteration(
+		Simplex simplex,
+		RealMultivariableFunction function,
+		RealCoordinateSpace space,
+		ILogger logger)
 	{
 		logger.Log("/ Начинаем итерацию");
 
@@ -73,7 +81,7 @@ public sealed class NelderMeadMethod
 		var centroid = simplex.Centroid(except: worstPoint);
 		logger.Log($"| Центр масс всех, кроме худшей: {centroid}");
 
-		var reflection = Reflect(worstPoint, centroid);
+		var reflection = Reflect(space, worstPoint, centroid);
 		var reflectionValue = function.Calculate(reflection);
 		logger.Log($"| Reflection: {reflection} [{reflectionValue}]");
 
@@ -81,7 +89,7 @@ public sealed class NelderMeadMethod
 		{
 			logger.Log("| reflectionValue лучше bestValue!");
 
-			var expansion = Expand(reflection, centroid);
+			var expansion = Expand(space, reflection, centroid);
 			var expansionValue = function.Calculate(expansion);
 			logger.Log($"\\ Expansion: {expansion} [{expansionValue}]");
 
@@ -106,7 +114,7 @@ public sealed class NelderMeadMethod
 			: (worstPoint, worstValue);
 		logger.Log($"| Лучшая между reflection и worst: {betterPoint} [{betterValue}]");
 
-		var shrunk = Shrink(betterPoint, centroid);
+		var shrunk = Shrink(space, betterPoint, centroid);
 		var shrunkValue = function.Calculate(shrunk);
 		logger.Log($"| Shrunk: {shrunk} [{shrunkValue}]");
 
@@ -117,20 +125,31 @@ public sealed class NelderMeadMethod
 		}
 
 		logger.Log("\\ Никакая из вычисленных не лучше --- global shrink");
-		return simplex.Map(point => Shrink(point, bestPoint));
+		return simplex.Map(point => Shrink(space, point, bestPoint));
 	}
 
-	private static Point MapPoint(Point mapped, Point basis, double coef) =>
-		basis + coef * (basis - mapped);
+	private static Point MapPoint(RealCoordinateSpace space, Point mapped, Point basis, double coef)
+	{
+		var added = coef * (basis - mapped);
+		var map = basis + added;
 
-	private Point Reflect(Point reflected, Point basis) =>
-		MapPoint(reflected, basis, _coefficients.Reflection);
+		while (!space.Has(map))
+		{
+			added *= 0.98;
+			map = basis + added;
+		}
 
-	private Point Expand(Point expanded, Point basis) =>
-		MapPoint(expanded, basis, -_coefficients.Expansion);
+		return map;
+	}
 
-	private Point Shrink(Point shrunk, Point basis) =>
-		MapPoint(shrunk, basis, -_coefficients.Shrink);
+	private Point Reflect(RealCoordinateSpace space, Point reflected, Point basis) =>
+		MapPoint(space, reflected, basis, _coefficients.Reflection);
+
+	private Point Expand(RealCoordinateSpace space, Point expanded, Point basis) =>
+		MapPoint(space, expanded, basis, -_coefficients.Expansion);
+
+	private Point Shrink(RealCoordinateSpace space, Point shrunk, Point basis) =>
+		MapPoint(space, shrunk, basis, -_coefficients.Shrink);
 
 	private delegate bool SavingCondition<in T>(T newValue, T currentValue);
 
