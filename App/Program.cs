@@ -39,8 +39,13 @@ public static class Program
 		var fileLogger = new FileLogger(new StreamWriter(@"C:\Users\MrAto\Desktop\log.txt", false, Encoding.Unicode));
 		var emptyLogger = new EmptyLogger();
 
+		var space = new ConstrainedRealCoordinateSpace(2, new ConstrainedRealCoordinateSpace.Constraint[]
+		{
+			point => point[0] + point[1] > 2
+		});
+
 		var method = new NelderMeadMethod(classic, lastVariance);
-		var min = method.FindMinimum(function, initialSimplex, emptyLogger, out var statistics);
+		var min = method.FindMinimum(function, space, initialSimplex, emptyLogger, out var statistics);
 
 		Console.WriteLine(min);
 		Console.WriteLine(statistics.IterationCount);
@@ -63,10 +68,12 @@ public static class EvaluationStrategyCollection
 		{
 			if (statistics.IterationCount == 0) return true;
 
-			var lastSimplexes = statistics.Trace.Skip(Math.Max(0, statistics.Trace.Count - count));
-			var varianceSum = lastSimplexes.Select(Variance).Sum();
+			var lastVariancesSum = statistics.Trace
+				.Skip(Math.Max(0, statistics.Trace.Count - count))
+				.Select(Variance)
+				.Sum();
 
-			return varianceSum >= epsilon;
+			return lastVariancesSum >= epsilon;
 		};
 
 	private static double NormSquared(Point point) =>
