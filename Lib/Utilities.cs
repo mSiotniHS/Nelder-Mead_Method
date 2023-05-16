@@ -20,7 +20,7 @@ public static class Utilities
 		new(
 			Generate(
 				dimension,
-				() => Random.Shared.NextDouble() * 100
+				() => Random.Shared.NextDouble() * 100 - 50
 			)
 		);
 }
